@@ -8,11 +8,11 @@ Metadata about DAGs (i.e. parameters set: parameter_1...)
 and tasks (datetime_started, datetime_finished, output_path...) 
 is saved in **ml_airflow** DB schema. SQL files (DDL and test data set) for MySQL and SQLite are in folder ***sql***.
 
-Based on this metadata from DB, already done tasks (for some set of input parameters and samples) will be skipped.
+Based on this metadata from DB, already done tasks (for some set of input parameters) will be skipped.
 
-When running DAGs (training or testing) for each of the tasks python logic will first do some pre processing (write some metadata in db for example), 
+When running DAGs (ml_training or ml_testing) for each of the tasks Python logic will first do some pre processing (write some metadata in db for example), 
 check if task is already done, skip it if it is (based on the datetime_finished in task's table), or run it if it is not.
-If it is run, or rerun, python logic will first start task by writing datetime_started, call Bash using proper parameters for
+If it is run or rerun, Python logic will first start task by writing datetime_started, call Bash using proper parameters for
 that task, after that finish task by writing datetime_finished and do some additional post processing if there is need.
 
 Customization of Bash parameters for each task, as well customization of output paths for each tasks is explained later in this document
@@ -37,7 +37,7 @@ using metadata from DB or some calculated info.
 
 Configuration file is found in **config/airflow.cfg**
 
-This file is copied to Docker image during build, and modified and copied to **airflow_home** folder for local installation.
+This file is copied to Docker image during build, modified and copied to **airflow_home** folder for local installation.
 
 ### Configuration parameters
 
