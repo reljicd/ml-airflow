@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export CONTAINER_NAME=reljicd-airflow
+export CONTAINER_NAME=ml-airflow
 echo -e "\nSet docker container name as ${CONTAINER_NAME}\n"
 
 echo -e "\nStop running Docker containers with container name ${CONTAINER_NAME}...\n"
