@@ -141,7 +141,7 @@ class MLTaskSubDag(LoggingMixin):
     @abc.abstractmethod
     def _parameters_provider(self,
                              **kwargs) -> str:
-        """ Abstract Callable that provides additional parameters for Spark Bash calls.
+        """ Abstract Callable that provides additional parameters for Bash calls.
 
         Returns: If not overridden returns empty string
 
