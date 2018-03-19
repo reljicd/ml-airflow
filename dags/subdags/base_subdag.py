@@ -57,7 +57,7 @@ class MLTaskSubDag(LoggingMixin):
             dag=self._subdag)
 
         self._parametrized_bash_operator = ParametrizedBashOperator(
-            task_id=f'qubole_{self._child_dag_id}',
+            task_id=f'bash_{self._child_dag_id}',
             parameters_provider=self._parameters_provider,
             bash_command='echo',
             dag=self._subdag)
