@@ -37,7 +37,7 @@ class CommonTask1SubDag(MLTaskSubDag):
 
         self.log.info(f'ml_dag_id: {ml_dag_id}')
 
-        parameters = [ml_dag_id,
+        parameters = [str(ml_dag_id),
                       'common_task_1_param_1',
                       'common_task_1_param_2']
 
