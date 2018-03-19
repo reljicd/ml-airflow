@@ -19,6 +19,10 @@ Customization of Bash parameters for each task, as well customization of output 
 
 Airflow is being run by starting Airflow web server and scheduler inside Docker container.
 
+![Screenshot 1](https://user-images.githubusercontent.com/7095876/37589803-920655c8-2b66-11e8-9377-ec3980d54df9.png)
+
+![Screenshot 2](https://user-images.githubusercontent.com/7095876/37589750-7704e29e-2b66-11e8-8067-b7590068e851.png)
+
 ## Customization
 
 Each of the tasks can have its own Python class, that is a subclass of 
