@@ -12,5 +12,5 @@ airflow connections -a \
           --conn_password ${DB_PASSWORD} \
           --conn_schema ${DB_SCHEMA}
 
-airflow unpause training_dag
-airflow unpause testing_dag
+airflow unpause ml_training_dag
+airflow unpause ml_testing_dag

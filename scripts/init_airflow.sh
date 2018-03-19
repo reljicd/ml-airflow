@@ -29,5 +29,5 @@ airflow connections -a \
           --conn_host ${DB_HOST}
 
 # Unpause our DAGs
-airflow unpause training_dag
-airflow unpause testing_dag
+airflow unpause ml_training_dag
+airflow unpause ml_testing_dag
