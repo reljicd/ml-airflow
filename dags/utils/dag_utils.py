@@ -1,4 +1,4 @@
-def get_ml_dag_id(parent_dag_id: str, **kwargs) -> str:
+def get_ml_dag_id(parent_dag_id: str, **kwargs) -> int:
     """ Extracts ml_dag_id either from kwargs or from XCom
 
     Args:
