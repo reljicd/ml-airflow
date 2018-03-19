@@ -40,12 +40,12 @@ class MLTestingDag(BaseMLDAG):
          self._testing_task_2_subdag)
 
     @staticmethod
-    def _get_ml_dag_id(engine: sqlalchemy.engine.Engine, **kwargs) -> str:
+    def _get_ml_dag_id(engine: sqlalchemy.engine.Engine, **kwargs) -> int:
         parameter_1 = kwargs['dag_run'].conf['parameter_1']
         parameter_3 = kwargs['dag_run'].conf['parameter_3']
 
-        # Get dag_run for dag_id and parameter if exists,
-        # or insert new dag_run with dag_id and parameter and return it
+        # Get ml_testing_dag for parameter_1 and parameter_3 if exists,
+        # or insert new ml_dag (if it doesnt exist for parameter_1) and ml_testing_dag
         try:
             ml_testing_dag = MLTestingDagTable(engine=engine).select_ml_testing_dag_for_parameters(
                 parameter_1=parameter_1,

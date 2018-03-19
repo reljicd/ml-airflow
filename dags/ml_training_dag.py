@@ -11,7 +11,7 @@ from dags.subdags.base_subdag import MLTaskSubDag
 
 
 class MLTrainingDag(BaseMLDAG):
-    DAG_NAME = 'training_dag'
+    DAG_NAME = 'ml_training_dag'
 
     def __init__(self):
         super().__init__(dag_name=self.DAG_NAME)
@@ -34,8 +34,8 @@ class MLTrainingDag(BaseMLDAG):
         parameter_1 = kwargs['dag_run'].conf['parameter_1']
         parameter_2 = kwargs['dag_run'].conf['parameter_2']
 
-        # Get dag_run for dag_id and parameter if exists,
-        # or insert new dag_run with dag_id and parameter and return it
+        # Get ml_testing_dag for parameter_1 and parameter_2 if exists,
+        # or insert new ml_dag (if it doesnt exist for parameter_1) and ml_testing_dag
         try:
             ml_training_dag = MLTrainingDagTable(engine=engine).select_ml_training_dag_for_parameters(
                 parameter_1=parameter_1,
