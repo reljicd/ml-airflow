@@ -24,4 +24,4 @@ class ParametrizedBashOperator(BashOperator, LoggingMixin):
 
         self.bash_command += f' {additional_parameters}'
 
-        return self.get_hook().execute(context)
+        return super(ParametrizedBashOperator, self).execute(context)
