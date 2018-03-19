@@ -20,9 +20,10 @@ DROP TABLE IF EXISTS ml_training_dag;
 
 CREATE TABLE ml_training_dag (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
-  ml_dag_id        INTEGER UNIQUE NOT NULL,
-  parameter_2      VARCHAR(255)   NOT NULL,
+  ml_dag_id        INTEGER      NOT NULL,
+  parameter_2      VARCHAR(255) NOT NULL,
   datetime_created DATETIME            DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (ml_dag_id, parameter_2),
   CONSTRAINT fk_ml_dag_id FOREIGN KEY (ml_dag_id) REFERENCES ml_dag (id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -38,9 +39,10 @@ DROP TABLE IF EXISTS ml_testing_dag;
 
 CREATE TABLE ml_testing_dag (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
-  ml_dag_id        INTEGER UNIQUE NOT NULL,
-  parameter_3      VARCHAR(255)   NOT NULL,
+  ml_dag_id        INTEGER      NOT NULL,
+  parameter_3      VARCHAR(255) NOT NULL,
   datetime_created DATETIME            DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (ml_dag_id, parameter_3),
   CONSTRAINT fk_ml_dag_id FOREIGN KEY (ml_dag_id) REFERENCES ml_dag (id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
