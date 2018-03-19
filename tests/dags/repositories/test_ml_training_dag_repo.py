@@ -43,7 +43,7 @@ def reset_db(ml_training_dag_repository_fixture: MLTrainingDagTable) -> None:
     MLDagTable().table.insert().values(id=INSERTED_ML_DAG_ID, parameter_1=PARAMETER_1).execute()
 
 
-def test_insert_training_dag_run(ml_training_dag_repository_fixture: MLTrainingDagTable, reset_db: None):
+def test_insert_ml_training_dag(ml_training_dag_repository_fixture: MLTrainingDagTable, reset_db: None):
     ml_training_dag = ml_training_dag_repository_fixture.table.select().where(
         and_(ml_training_dag_repository_fixture.table.c.ml_dag_id == INSERTED_ML_DAG_ID,
              ml_training_dag_repository_fixture.table.c.parameter_2 == PARAMETER_2)).execute().first()
