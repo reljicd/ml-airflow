@@ -1,7 +1,7 @@
 import datetime
 from collections import namedtuple
 
-from sqlalchemy import Column, Table, Integer, DateTime, ForeignKey, and_, String
+from sqlalchemy import Column, Table, Integer, DateTime, ForeignKey, and_, String, UniqueConstraint
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
 
@@ -18,9 +18,11 @@ class MLTrainingDagTable(BaseDatabase):
     table = Table(_table_name, BaseDatabase.metadata,
 
                   Column('id', Integer, primary_key=True),
-                  Column('ml_dag_id', Integer, ForeignKey("ml_dag.id"), nullable=False, unique=True),
+                  Column('ml_dag_id', Integer, ForeignKey("ml_dag.id"), nullable=False),
                   Column('parameter_2', String, nullable=False),
                   Column('datetime_created', DateTime, default=datetime.datetime.utcnow),
+
+                  UniqueConstraint('ml_dag_id', 'parameter_2'),
 
                   extend_existing=True)
 
@@ -42,7 +44,8 @@ class MLTrainingDagTable(BaseDatabase):
                                        datetime_created=datetime.datetime.utcnow()).execute()
         except IntegrityError:
             raise DBException(
-                f'ml_training_dag with [ml_dag_id: {ml_training_dag.ml_dag.id}] already exists in DB')
+                f'ml_testing_dag with [ml_dag_id: {ml_training_dag.ml_dag.id}] '
+                f'and [parameter_3: {ml_training_dag.parameter_2}] already exists in DB')
 
         return self.select_ml_training_dag_for_parameters(
             parameter_1=ml_training_dag.ml_dag.parameter_1,
