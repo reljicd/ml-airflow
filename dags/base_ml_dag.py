@@ -9,11 +9,11 @@ from airflow.utils.dates import days_ago
 
 from dags.config import settings
 from dags.logging.logging_mixin import LoggingMixin
-from dags.repositories.base_db import BaseDatabase
-from dags.repositories.common_task_1 import CommonTask1Table
-from dags.repositories.common_task_2 import CommonTask2Table
+from dags.repositories.common_task_1 import CommonTask1Repository
+from dags.repositories.common_task_2 import CommonTask2Repository
 from dags.subdags.base_subdag import MLTaskSubDag
 from dags.subdags.common_task_1_subdag import CommonTask1SubDag
+from dags.utils import db_utils
 
 
 class BaseMLDAG(DAG, LoggingMixin):
@@ -38,7 +38,7 @@ class BaseMLDAG(DAG, LoggingMixin):
                                                     subdag=CommonTask1SubDag(args=self._args,
                                                                              parent_dag_id=dag_name,
                                                                              child_dag_id='common_task_1',
-                                                                             repository_class=CommonTask1Table).build(),
+                                                                             repository_class=CommonTask1Repository).build(),
                                                     default_args=self._args,
                                                     dag=self)
 
@@ -46,7 +46,7 @@ class BaseMLDAG(DAG, LoggingMixin):
                                                     subdag=MLTaskSubDag(args=self._args,
                                                                         parent_dag_id=dag_name,
                                                                         child_dag_id='common_task_2',
-                                                                        repository_class=CommonTask2Table).build(),
+                                                                        repository_class=CommonTask2Repository).build(),
                                                     default_args=self._args,
                                                     dag=self)
 
@@ -72,11 +72,11 @@ class BaseMLDAG(DAG, LoggingMixin):
             self.log.debug(f'Connection port: {connection.port}')
             self.log.debug(f'Connection host: {connection.host}')
 
-            engine = BaseDatabase.create_engine(login=connection.login,
-                                                password=connection.password,
-                                                host=connection.host,
-                                                schema=connection.schema,
-                                                conn_type=connection.conn_type)
+            engine = db_utils.create_db_engine(login=connection.login,
+                                               password=connection.password,
+                                               host=connection.host,
+                                               schema=connection.schema,
+                                               conn_type=connection.conn_type)
 
             ml_dag_id = self._get_ml_dag_id(engine=engine, **kwargs)
 

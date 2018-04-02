@@ -5,15 +5,15 @@ from sqlalchemy import Column, Table, Integer, DateTime, String
 from sqlalchemy.engine.base import Engine
 
 from dags.exceptions.db_exception import DBException
-from dags.repositories.base_db import BaseDatabase
+from dags.repositories.base import BaseRepository
 
-MLDagRowTuple = namedtuple('MLDagRowTuple', ['id', 'parameter_1'])
+MLDagRow = namedtuple('MLDagRow', ['id', 'parameter_1'])
 
 
-class MLDagTable(BaseDatabase):
+class MLDagRepository(BaseRepository):
     _table_name = 'ml_dag'
 
-    table = Table(_table_name, BaseDatabase.metadata,
+    table = Table(_table_name, BaseRepository.metadata,
 
                   Column('id', Integer, primary_key=True),
                   Column('datetime_created', DateTime, default=datetime.datetime.utcnow),
@@ -24,46 +24,40 @@ class MLDagTable(BaseDatabase):
     def __init__(self, engine: Engine = None):
         super().__init__(engine=engine)
 
-    def insert_ml_dag(self, ml_dag: MLDagRowTuple) -> MLDagRowTuple:
+    def save(self, ml_dag: MLDagRow) -> MLDagRow:
         """ Inserts new ml_dag row into DB
 
         Args:
             ml_dag:
 
-        Returns: inserted MLDagRowTuple
+        Returns: inserted MLDagRow
 
         """
         self.table.insert().values(parameter_1=ml_dag.parameter_1,
                                    datetime_created=datetime.datetime.utcnow()).execute()
 
-        return self.select_ml_dag_for_parameter_1(parameter_1=ml_dag.parameter_1)
+        return self.find_by_parameter_1(parameter_1=ml_dag.parameter_1)
 
-    def select_ml_dag_for_id(self, ml_dag_id: int) -> MLDagRowTuple:
-        """ Returns MLDagRowTuple for row with id = ml_dag_id
+    def find_by_id(self, id: int) -> MLDagRow:
+        """ Returns MLDagRow for row with id = ml_dag_id
 
-        Args:
-            ml_dag_id:
-
-        Returns: MLDagRowTuple with ml_dag_id
+        Returns: MLDagRow with ml_dag_id
 
         Raises:
             DBException: If ml_dag with ml_dag_id does not exist in db
 
         """
-        ml_dag = self.table.select().where(self.table.c.id == ml_dag_id).execute().first()
+        ml_dag = self.table.select().where(self.table.c.id == id).execute().first()
         if ml_dag:
-            return MLDagRowTuple(id=ml_dag.id, parameter_1=ml_dag.parameter_1)
+            return MLDagRow(id=ml_dag.id, parameter_1=ml_dag.parameter_1)
         else:
             raise DBException(
-                f'ml_dag with [id: {ml_dag_id}] does not exists')
+                f'ml_dag with [id: {id}] does not exists')
 
-    def select_ml_dag_for_parameter_1(self, parameter_1: str) -> MLDagRowTuple:
-        """ Returns MLDagRowTuple for row with parameter_1 = parameter_1
+    def find_by_parameter_1(self, parameter_1: str) -> MLDagRow:
+        """ Returns MLDagRow for row with parameter_1 = parameter_1
 
-        Args:
-            parameter_1:
-
-        Returns: MLDagRowTuple with parameter_1
+        Returns: MLDagRow with parameter_1
 
         Raises:
             DBException: If ml_dag with parameter_1 does not exist in db
@@ -71,16 +65,13 @@ class MLDagTable(BaseDatabase):
         """
         ml_dag = self.table.select().where(self.table.c.parameter_1 == parameter_1).execute().first()
         if ml_dag:
-            return MLDagRowTuple(id=ml_dag.id, parameter_1=ml_dag.parameter_1)
+            return MLDagRow(id=ml_dag.id, parameter_1=ml_dag.parameter_1)
         else:
             raise DBException(
                 f'ml_dag with [parameter_1: {parameter_1}] does not exists')
 
     def check_ml_dag_id(self, ml_dag_id: int) -> None:
         """ Checks if ml_dag run with ml_dag_id exists in db
-
-        Args:
-            ml_dag_id:
 
         Raises:
             DBException: If ml_dag with ml_dag_id does not exist in db

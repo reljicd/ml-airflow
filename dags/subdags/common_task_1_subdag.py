@@ -2,7 +2,7 @@ from typing import Dict
 
 from sqlalchemy.engine.base import Engine
 
-from dags.repositories.common_task_1 import CommonTask1Table
+from dags.repositories.common_task_1 import CommonTask1Repository
 from dags.subdags.base_subdag import MLTaskSubDag
 from dags.utils import dag_utils
 
@@ -14,7 +14,7 @@ class CommonTask1SubDag(MLTaskSubDag):
                  args: Dict,
                  parent_dag_id: str,
                  child_dag_id: str,
-                 repository_class=CommonTask1Table,
+                 repository_class=CommonTask1Repository,
                  engine: Engine = None):
         """ Defines subDAG tasks """
         super(CommonTask1SubDag, self).__init__(args=args,

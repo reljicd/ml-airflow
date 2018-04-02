@@ -4,10 +4,10 @@ from airflow.operators.subdag_operator import SubDagOperator
 
 from dags.base_ml_dag import BaseMLDAG
 from dags.exceptions.db_exception import DBException
-from dags.repositories.ml_dag import MLDagTable, MLDagRowTuple
-from dags.repositories.ml_testing_dag import MLTestingDagTable, MLTestingDagRowTuple
-from dags.repositories.testing_taks_1 import TestingTask1Table
-from dags.repositories.testing_taks_2 import TestingTask2Table
+from dags.repositories.ml_dag import MLDagRepository, MLDagRow
+from dags.repositories.ml_testing_dag import MLTestingDagRepository, MLTestingDagRow
+from dags.repositories.testing_taks_1 import TestingTask1Repository
+from dags.repositories.testing_taks_2 import TestingTask2Repository
 from dags.subdags.base_subdag import MLTaskSubDag
 
 
@@ -21,7 +21,7 @@ class MLTestingDag(BaseMLDAG):
                                                      subdag=MLTaskSubDag(args=self._args,
                                                                          parent_dag_id=self.DAG_NAME,
                                                                          child_dag_id='testing_task_1',
-                                                                         repository_class=TestingTask1Table).build(),
+                                                                         repository_class=TestingTask1Repository).build(),
                                                      default_args=self._args,
                                                      dag=self)
 
@@ -29,7 +29,7 @@ class MLTestingDag(BaseMLDAG):
                                                      subdag=MLTaskSubDag(args=self._args,
                                                                          parent_dag_id=self.DAG_NAME,
                                                                          child_dag_id='testing_task_2',
-                                                                         repository_class=TestingTask2Table).build(),
+                                                                         repository_class=TestingTask2Repository).build(),
                                                      default_args=self._args,
                                                      dag=self)
 
@@ -47,20 +47,20 @@ class MLTestingDag(BaseMLDAG):
         # Get ml_testing_dag for parameter_1 and parameter_3 if exists,
         # or insert new ml_dag (if it doesnt exist for parameter_1) and ml_testing_dag
         try:
-            ml_testing_dag = MLTestingDagTable(engine=engine).select_ml_testing_dag_for_parameters(
+            ml_testing_dag = MLTestingDagRepository(engine=engine).find_by_parameters(
                 parameter_1=parameter_1,
                 parameter_3=parameter_3)
         except DBException:
             try:
-                ml_dag = MLDagTable(engine=engine).select_ml_dag_for_parameter_1(parameter_1=parameter_1)
+                ml_dag = MLDagRepository(engine=engine).find_by_parameter_1(parameter_1=parameter_1)
             except DBException:
-                ml_dag = MLDagTable(engine=engine).insert_ml_dag(MLDagRowTuple(id=None,
-                                                                               parameter_1=parameter_1))
+                ml_dag = MLDagRepository(engine=engine).save(MLDagRow(id=None,
+                                                                      parameter_1=parameter_1))
 
-            ml_testing_dag = MLTestingDagTable(engine=engine).insert_ml_testing_dag(
-                MLTestingDagRowTuple(id=None,
-                                     ml_dag=ml_dag,
-                                     parameter_3=parameter_3))
+            ml_testing_dag = MLTestingDagRepository(engine=engine).save(
+                MLTestingDagRow(id=None,
+                                ml_dag=ml_dag,
+                                parameter_3=parameter_3))
 
         return ml_testing_dag.ml_dag.id
 

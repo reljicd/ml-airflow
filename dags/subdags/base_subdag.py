@@ -9,7 +9,7 @@ from sqlalchemy.engine.base import Engine
 from dags.exceptions.db_exception import DBException
 from dags.logging.logging_mixin import LoggingMixin
 from dags.operators.parametrized_bash_operator import ParametrizedBashOperator
-from dags.repositories.task_mixin import TaskTableMixin
+from dags.repositories.task_mixin import TaskRepositoryMixin
 from dags.utils import dag_utils
 
 
@@ -20,7 +20,7 @@ class MLTaskSubDag(LoggingMixin):
                  args: Dict,
                  parent_dag_id: str,
                  child_dag_id: str,
-                 repository_class: TypeVar(TaskTableMixin),
+                 repository_class: TypeVar(TaskRepositoryMixin),
                  engine: Engine = None):
         """ Defines subDAG tasks """
 
@@ -53,7 +53,7 @@ class MLTaskSubDag(LoggingMixin):
         self._start_task_in_db_operator = PythonOperator(
             task_id=f'start_task_in_db_{self._child_dag_id}',
             provide_context=True,
-            python_callable=self._start_task_in_db,
+            python_callable=self._start_task,
             dag=self._subdag)
 
         self._parametrized_bash_operator = ParametrizedBashOperator(
@@ -65,7 +65,7 @@ class MLTaskSubDag(LoggingMixin):
         self._finish_task_in_db_operator = PythonOperator(
             task_id=f'finish_task_in_db_{self._child_dag_id}',
             provide_context=True,
-            python_callable=self._finish_task_in_db,
+            python_callable=self._finish_task,
             dag=self._subdag)
 
         self._join_operator = DummyOperator(
@@ -110,8 +110,8 @@ class MLTaskSubDag(LoggingMixin):
         else:
             return 'start_task_in_db_{}'.format(self._child_dag_id)
 
-    def _start_task_in_db(self,
-                          **kwargs) -> None:
+    def _start_task(self,
+                    **kwargs) -> None:
         """ Writes datetime_started to task table (based on repository_class) for ml_dag_id
 
         Args:
@@ -124,8 +124,8 @@ class MLTaskSubDag(LoggingMixin):
 
         self._repository_class(engine=self._engine).start_task(ml_dag_id=ml_dag_id)
 
-    def _finish_task_in_db(self,
-                           **kwargs) -> None:
+    def _finish_task(self,
+                     **kwargs) -> None:
         """ Writes datetime_finished to task table (based on repository_class) for ml_dag_id
 
         Args:
@@ -149,11 +149,7 @@ class MLTaskSubDag(LoggingMixin):
         return ''
 
     def build(self) -> DAG:
-        """ Constructs and returns subDAG
-
-        Returns: Initialized subDAG
-
-        """
+        """ Constructs and returns initialized subDAG """
         # DAG edges definitions
         self._conditional_operator.set_upstream(self._initialize_task_operator)
         self._start_task_in_db_operator.set_upstream(self._conditional_operator)

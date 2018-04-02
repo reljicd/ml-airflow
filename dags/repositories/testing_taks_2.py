@@ -1,14 +1,14 @@
 from sqlalchemy import Column, Table, Integer, DateTime, ForeignKey
 from sqlalchemy.engine.base import Engine
 
-from dags.repositories.base_db import BaseDatabase
-from dags.repositories.task_mixin import TaskTableMixin
+from dags.repositories.base import BaseRepository
+from dags.repositories.task_mixin import TaskRepositoryMixin
 
 
-class TestingTask2Table(BaseDatabase, TaskTableMixin):
+class TestingTask2Repository(BaseRepository, TaskRepositoryMixin):
     _table_name = 'testing_task_2'
 
-    table = Table(_table_name, BaseDatabase.metadata,
+    table = Table(_table_name, BaseRepository.metadata,
                   Column('id', Integer, primary_key=True),
                   Column('ml_dag_id', Integer, ForeignKey("ml_dag.id"), nullable=False, unique=True),
                   Column('datetime_started', DateTime),

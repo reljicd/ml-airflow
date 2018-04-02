@@ -4,9 +4,9 @@ from airflow.operators.subdag_operator import SubDagOperator
 
 from dags.base_ml_dag import BaseMLDAG
 from dags.exceptions.db_exception import DBException
-from dags.repositories.ml_dag import MLDagTable, MLDagRowTuple
-from dags.repositories.ml_training_dag import MLTrainingDagRowTuple, MLTrainingDagTable
-from dags.repositories.training_task_1 import TrainingTask1Table
+from dags.repositories.ml_dag import MLDagRepository, MLDagRow
+from dags.repositories.ml_training_dag import MLTrainingDagRow, MLTrainingDagRepository
+from dags.repositories.training_task_1 import TrainingTask1Repository
 from dags.subdags.base_subdag import MLTaskSubDag
 
 
@@ -20,7 +20,7 @@ class MLTrainingDag(BaseMLDAG):
                                                       subdag=MLTaskSubDag(args=self._args,
                                                                           parent_dag_id=self.DAG_NAME,
                                                                           child_dag_id='training_task_2',
-                                                                          repository_class=TrainingTask1Table).build(),
+                                                                          repository_class=TrainingTask1Repository).build(),
                                                       default_args=self._args,
                                                       dag=self)
 
@@ -37,20 +37,20 @@ class MLTrainingDag(BaseMLDAG):
         # Get ml_testing_dag for parameter_1 and parameter_2 if exists,
         # or insert new ml_dag (if it doesnt exist for parameter_1) and ml_testing_dag
         try:
-            ml_training_dag = MLTrainingDagTable(engine=engine).select_ml_training_dag_for_parameters(
+            ml_training_dag = MLTrainingDagRepository(engine=engine).find_by_parameters(
                 parameter_1=parameter_1,
                 parameter_2=parameter_2)
         except DBException:
             try:
-                ml_dag = MLDagTable(engine=engine).select_ml_dag_for_parameter_1(parameter_1=parameter_1)
+                ml_dag = MLDagRepository(engine=engine).find_by_parameter_1(parameter_1=parameter_1)
             except DBException:
-                ml_dag = MLDagTable(engine=engine).insert_ml_dag(MLDagRowTuple(id=None,
-                                                                               parameter_1=parameter_1))
+                ml_dag = MLDagRepository(engine=engine).save(MLDagRow(id=None,
+                                                                      parameter_1=parameter_1))
 
-            ml_training_dag = MLTrainingDagTable(engine=engine).insert_ml_training_dag(
-                MLTrainingDagRowTuple(id=None,
-                                      ml_dag=ml_dag,
-                                      parameter_2=parameter_2))
+            ml_training_dag = MLTrainingDagRepository(engine=engine).save(
+                MLTrainingDagRow(id=None,
+                                 ml_dag=ml_dag,
+                                 parameter_2=parameter_2))
 
         return ml_training_dag.ml_dag.id
 

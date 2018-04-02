@@ -6,16 +6,16 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
 
 from dags.exceptions.db_exception import DBException
-from dags.repositories.base_db import BaseDatabase
-from dags.repositories.ml_dag import MLDagTable, MLDagRowTuple
+from dags.repositories.base import BaseRepository
+from dags.repositories.ml_dag import MLDagRepository, MLDagRow
 
-MLTrainingDagRowTuple = namedtuple('MLTrainingDagRowTuple', ['id', 'ml_dag', 'parameter_2'])
+MLTrainingDagRow = namedtuple('MLTrainingDagRow', ['id', 'ml_dag', 'parameter_2'])
 
 
-class MLTrainingDagTable(BaseDatabase):
+class MLTrainingDagRepository(BaseRepository):
     _table_name = 'ml_training_dag'
 
-    table = Table(_table_name, BaseDatabase.metadata,
+    table = Table(_table_name, BaseRepository.metadata,
 
                   Column('id', Integer, primary_key=True),
                   Column('ml_dag_id', Integer, ForeignKey("ml_dag.id"), nullable=False),
@@ -29,13 +29,13 @@ class MLTrainingDagTable(BaseDatabase):
     def __init__(self, engine: Engine = None):
         super().__init__(engine=engine)
 
-    def insert_ml_training_dag(self, ml_training_dag: MLTrainingDagRowTuple) -> MLTrainingDagRowTuple:
+    def save(self, ml_training_dag: MLTrainingDagRow) -> MLTrainingDagRow:
         """ Inserts new ml_training_dag row in DB
 
         Args:
-            ml_training_dag: MLTrainingDagRowTuple for insertion
+            ml_training_dag: MLTrainingDagRow for insertion
 
-        Returns: Inserted MLTrainingDagRowTuple
+        Returns: Inserted MLTrainingDagRow
 
         """
         try:
@@ -47,35 +47,35 @@ class MLTrainingDagTable(BaseDatabase):
                 f'ml_testing_dag with [ml_dag_id: {ml_training_dag.ml_dag.id}] '
                 f'and [parameter_3: {ml_training_dag.parameter_2}] already exists in DB')
 
-        return self.select_ml_training_dag_for_parameters(
+        return self.find_by_parameters(
             parameter_1=ml_training_dag.ml_dag.parameter_1,
             parameter_2=ml_training_dag.parameter_2)
 
-    def select_ml_training_dag_for_parameters(self,
-                                              parameter_1: str,
-                                              parameter_2: str) -> MLTrainingDagRowTuple:
-        """ Returns MLTrainingDagRowTuple for parameters
+    def find_by_parameters(self,
+                           parameter_1: str,
+                           parameter_2: str) -> MLTrainingDagRow:
+        """ Returns MLTrainingDagRow for parameters
 
         Args:
             parameter_1:
             parameter_2:
 
-        Returns: MLTrainingDagRowTuple with parameters
+        Returns: MLTrainingDagRow with parameters
 
         Raises:
             DBException: If ml_training_dag with parameters does not exist in db
 
         """
-        ml_training_dag_dag_join = self.table.join(MLDagTable.table).select().where(
-            and_(MLDagTable.table.c.parameter_1 == parameter_1,
+        ml_training_dag_dag_join = self.table.join(MLDagRepository.table).select().where(
+            and_(MLDagRepository.table.c.parameter_1 == parameter_1,
                  self.table.c.parameter_2 == parameter_2)
         ).execute().first()
 
         if ml_training_dag_dag_join:
-            return MLTrainingDagRowTuple(
+            return MLTrainingDagRow(
                 id=ml_training_dag_dag_join[self.table.c.id],
-                ml_dag=MLDagRowTuple(id=ml_training_dag_dag_join[MLDagTable.table.c.id],
-                                     parameter_1=ml_training_dag_dag_join[MLDagTable.table.c.parameter_1]),
+                ml_dag=MLDagRow(id=ml_training_dag_dag_join[MLDagRepository.table.c.id],
+                                parameter_1=ml_training_dag_dag_join[MLDagRepository.table.c.parameter_1]),
                 parameter_2=ml_training_dag_dag_join[self.table.c.parameter_2])
         else:
             raise DBException(
