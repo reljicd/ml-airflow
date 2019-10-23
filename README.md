@@ -89,7 +89,9 @@ $ pip install -r requirements.txt
 It is possible to run Airflow using Docker:
 
 Download the repos into a folder you want:
+```bash
 git clone https://github.com/reljicd/ml-airflow
+```
 
 Build Docker image:
 ```bash
