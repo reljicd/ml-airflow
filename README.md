@@ -120,11 +120,18 @@ It is possible to run all of the above with helper script:
 $ chmod +x scripts/run_docker_compose.sh
 $ scripts/run_docker_compose.sh
 ```
+After you run these commands, the docker contrainers will be stopped.
 
 ## Airflow CLI in Docker
 
 Since we named Docker container **"ml-airflow"** in our **run_docker.sh** script, we can run
 any [Airflow CLI command](https://airflow.apache.org/cli.html) inside of Docker container as:
+
+Before you run the following commands:
+You should restart the docker (under docker folder):
+```bash
+$ docker compose start
+```
 
 ```bash
 $ docker exec $(docker ps -aqf "name=ml-airflow") airflow [COMMAND]
