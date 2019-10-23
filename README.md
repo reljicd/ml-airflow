@@ -62,7 +62,7 @@ Configuration parameters are passed through environment variables:
 \[Optional\] Install virtual environment:
 
 ```bash
-$ python -m virtualenv venv
+$ virtualenv venv
 ```
 
 \[Optional\] Activate virtual environment:
@@ -88,9 +88,14 @@ $ pip install -r requirements.txt
 
 It is possible to run Airflow using Docker:
 
+Download the repos into a folder you want:
+```bash
+git clone https://github.com/reljicd/ml-airflow
+```
+
 Build Docker image:
 ```bash
-$ docker build -t reljicd/ml-airflow -f docker\Dockerfile .
+$ docker build -t reljicd/ml-airflow -f docker/Dockerfile .
 ```
 
 Run Docker container:
