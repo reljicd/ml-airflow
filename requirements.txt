@@ -1,5 +1,5 @@
 apache-airflow==1.9.0
 pytest==3.2.3
-mysql-connector-python==8.0.5
+mysql-connector-python==8.0.14
 ipython==6.2.1
 cryptography==2.1.4
